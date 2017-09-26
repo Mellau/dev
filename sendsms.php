@@ -16,42 +16,30 @@ $db = getUserPasswordSMS();
 $user = $db["user"];
 $password = $db["password"];
 
-//check if the post recived is safe
+//check if the post recived is ok
 if ($_SERVER["REQUEST_METHOD"] == "POST") { 
-  $destination = chek($_POST["destination"]);
-  $message = chek($_POST["message"]);
+  $destination = chekempty($_POST["destination"]);
+  $destination = chekparameters($destination);
+  $message = chekempty($_POST["message"]);
 }
 
-function chek($post){
-  //Protects us from sql injection
-  $post = str_ireplace("SELECT","",$post);
-  $post = str_ireplace("COPY","",$post);
-  $post = str_ireplace("DELETE","",$post);
-  $post = str_ireplace("DROP","",$post);
-  $post = str_ireplace("DUMP","",$post);
-  $post = str_ireplace(" OR ","",$post);
-  $post = str_ireplace("LIKE","",$post);
-  $post = str_ireplace("--","",$post);
-  $post = str_ireplace("^","",$post);
-  $post = str_ireplace("[","",$post);
-  $post = str_ireplace("]","",$post);
-  $post = str_ireplace("*","",$post);
-
+function chekempty($post){
   //check if it's empty for safe time and memory
   if (empty($post)) {
     printf("Empty parameter");
     exit;
   }
-
   return $post;
 }
 
-
-// check if destination only contains a numbers
-if (!preg_match("/^[0-9 ()+]*$/",$destination)) {
-  var_dump($destination);
-  echo "The destination have wrong parameters";
-  exit;
+function chekparameters($number){
+  // check if destination only contains a phone number
+  if (!preg_match("/^[0-9 ()+]*$/",$number)) {
+    var_dump($destination);
+    echo "The destination have wrong parameters";
+    exit;
+  }
+  return $number;
 }
 
 
@@ -79,8 +67,7 @@ try {
 
     print "-Status-\n";
     $res = $client->get_status($id);
-    //var_dump($res);
-    print($res["last_status_text"]."\n");
+    var_dump($res);
 
     // Shows the remaining credits 
     $credits = $client->get_credits();
